@@ -12,8 +12,8 @@ public class CorsConfig implements WebMvcConfigurer {
         registry.addMapping("/api/**")
                 .allowedOrigins(
                         "http://localhost:8080",        // NetBeans Tomcat local
-                        "http://192.168.0.108:8080",   // Tu IP + Tomcat
-                        "http://192.168.0.108:8081"    // Tu IP + Spring Boot
+                        "http://192.168.0.117:8080",   // Tu IP + Tomcat
+                        "http://192.168.0.117:8081"    // Tu IP + Spring Boot
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
