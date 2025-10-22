@@ -6,15 +6,10 @@ import com.pruebas.pruebas.mapper.EncuestaMapper;
 import com.pruebas.pruebas.repository.EncuestaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import java.util.Optional;
-import java.util.List;
-
-import static org.mockito.Mockito.*;
+import org.mockito.*;
+import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class EncuestaServiceTest {
 
@@ -28,55 +23,109 @@ class EncuestaServiceTest {
     private EncuestaService encuestaService;
 
     private Encuesta encuesta;
-    private EncuestaDTO dto;
+    private EncuestaDTO encuestaDTO;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
         encuesta = new Encuesta();
         encuesta.setIdEncuesta(1L);
-        encuesta.setTitulo("Encuesta de Satisfacción");
+        encuesta.setTitulo("Satisfacción del cliente");
+        encuesta.setDescripcion("Encuesta sobre atención al cliente");
+        encuesta.setEstado("Activa");
 
-        dto = new EncuestaDTO();
-        dto.setId(1L);
-        dto.setTitulo("Encuesta de Satisfacción");
+        encuestaDTO = new EncuestaDTO();
+        encuestaDTO.setId(1L);
+        encuestaDTO.setTitulo("Satisfacción del cliente");
+        encuestaDTO.setDescripcion("Encuesta sobre atención al cliente");
+        encuestaDTO.setEstado("Activa");
     }
 
     @Test
     void testCreateEncuesta() {
-        when(encuestaMapper.toEntity(dto)).thenReturn(encuesta);
+        when(encuestaMapper.toEntity(encuestaDTO)).thenReturn(encuesta);
         when(encuestaRepository.save(encuesta)).thenReturn(encuesta);
-        when(encuestaMapper.toDTO(encuesta)).thenReturn(dto);
+        when(encuestaMapper.toDTO(encuesta)).thenReturn(encuestaDTO);
 
-        EncuestaDTO result = encuestaService.create(dto);
+        EncuestaDTO result = encuestaService.create(encuestaDTO);
 
         assertNotNull(result);
-        assertEquals("Encuesta de Satisfacción", result.getTitulo());
-        verify(encuestaRepository, times(1)).save(any(Encuesta.class));
+        assertEquals("Satisfacción del cliente", result.getTitulo());
+        verify(encuestaRepository, times(1)).save(encuesta);
     }
 
     @Test
-    void testGetByIdSuccess() {
+    void testGetByIdEncuestaFound() {
         when(encuestaRepository.findById(1L)).thenReturn(Optional.of(encuesta));
-        when(encuestaMapper.toDTO(encuesta)).thenReturn(dto);
-
+        when(encuestaMapper.toDTO(encuesta)).thenReturn(encuestaDTO);
 
         EncuestaDTO result = encuestaService.getById(1L);
+
+        assertNotNull(result);
         assertEquals(1L, result.getId());
     }
 
     @Test
-    void testGetByIdNotFound() {
+    void testGetByIdEncuestaNotFound() {
         when(encuestaRepository.findById(99L)).thenReturn(Optional.empty());
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> encuestaService.getById(99L));
-        assertEquals("Encuesta no encontrada", ex.getMessage());
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> encuestaService.getById(99L));
+        assertEquals("Encuesta no encontrada", exception.getMessage());
     }
 
     @Test
-    void testDeleteEncuesta() {
+    void testGetAllEncuestas() {
+        when(encuestaRepository.findAll()).thenReturn(List.of(encuesta));
+        when(encuestaMapper.toDTO(encuesta)).thenReturn(encuestaDTO);
+
+        List<EncuestaDTO> result = encuestaService.getAll();
+
+        assertEquals(1, result.size());
+        assertEquals("Satisfacción del cliente", result.get(0).getTitulo());
+    }
+
+    @Test
+    void testUpdateEncuesta() {
+        EncuestaDTO updateDTO = new EncuestaDTO();
+        updateDTO.setTitulo("Encuesta actualizada");
+        updateDTO.setDescripcion("Nueva descripción");
+        updateDTO.setEstado("Inactiva");
+
+        when(encuestaRepository.findById(1L)).thenReturn(Optional.of(encuesta));
+        when(encuestaRepository.save(any(Encuesta.class))).thenReturn(encuesta);
+        when(encuestaMapper.toDTO(any(Encuesta.class))).thenReturn(updateDTO);
+
+        EncuestaDTO result = encuestaService.update(1L, updateDTO);
+
+        assertNotNull(result);
+        assertEquals("Encuesta actualizada", result.getTitulo());
+        verify(encuestaRepository, times(1)).save(encuesta);
+    }
+
+    @Test
+    void testDeleteEncuestaExists() {
         when(encuestaRepository.existsById(1L)).thenReturn(true);
-        boolean deleted = encuestaService.delete(1L);
-        assertTrue(deleted);
-        verify(encuestaRepository).deleteById(1L);
+
+        boolean result = encuestaService.delete(1L);
+
+        assertTrue(result);
+        verify(encuestaRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void testDeleteEncuestaNotExists() {
+        when(encuestaRepository.existsById(1L)).thenReturn(false);
+
+        boolean result = encuestaService.delete(1L);
+
+        assertFalse(result);
+        verify(encuestaRepository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    void testDeleteAllEncuestas() {
+        encuestaService.deleteAll();
+        verify(encuestaRepository, times(1)).deleteAll();
     }
 }
