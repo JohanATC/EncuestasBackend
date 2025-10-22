@@ -3,6 +3,8 @@ package com.pruebas.pruebas.repository;
 import com.pruebas.pruebas.entity.Respuesta;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 /**
  * Repositorio JPA para la entidad {@link Respuesta}.
  * <p>
@@ -25,5 +27,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * </p>
  */
 public interface RespuestaRepository extends JpaRepository<Respuesta, Long> {
+    // Contar respuestas por pregunta
+    long countByPreguntaIdPregunta(Long idPregunta);
+
+    // Obtener respuestas por pregunta
+    List<Respuesta> findByPreguntaIdPregunta(Long idPregunta);
+
     // Consultas personalizadas adicionales se pueden definir aquí
 }
