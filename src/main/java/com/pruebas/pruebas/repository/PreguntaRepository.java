@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 /**
  * Repositorio JPA para la entidad {@link Pregunta}.
  * <p>
@@ -24,8 +26,8 @@ public interface PreguntaRepository extends JpaRepository<Pregunta, Long> {
      * intermedia dentro del cuestionario sin sobrescribir el orden existente.
      * </p>
      *
-     * @param orden       posición desde la cual se incrementará el orden.
-     * @param idEncuesta  identificador de la encuesta a modificar.
+     * @param orden      posición desde la cual se incrementará el orden.
+     * @param idEncuesta identificador de la encuesta a modificar.
      */
     @Modifying
     @Query("UPDATE Pregunta p SET p.orden = p.orden + 1 WHERE p.encuesta.idEncuesta = :idEncuesta AND p.orden >= :orden")
@@ -44,4 +46,7 @@ public interface PreguntaRepository extends JpaRepository<Pregunta, Long> {
      */
     @Query("SELECT MAX(p.orden) FROM Pregunta p WHERE p.encuesta.idEncuesta = :idEncuesta")
     Integer findMaxOrdenByEncuesta(@Param("idEncuesta") Long idEncuesta);
+
+    // NUEVO: Obtener preguntas por encuesta
+    List<Pregunta> findByEncuestaIdEncuesta(Long idEncuesta);
 }
