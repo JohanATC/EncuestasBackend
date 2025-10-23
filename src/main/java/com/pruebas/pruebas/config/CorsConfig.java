@@ -24,4 +24,26 @@ public class CorsConfig implements WebMvcConfigurer {
                 .allowCredentials(true)
                 .maxAge(3600); // Cache preflight requests por 1 hora
     }
+
+    // AGREGAR ESTO PARA QUE FUNCIONE CON OPTIONS
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:8080",
+                "http://192.168.0.117:8080",
+                "http://192.168.0.117:8081",
+                "http://10.0.2.2:8080",
+                "http://10.0.2.2:8081",
+                "http://[::1]:8080",
+                "http://[::1]:8081"
+        ));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/**", configuration);
+        return source;
+    }
 }
